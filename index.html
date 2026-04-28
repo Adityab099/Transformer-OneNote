@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transformer — OneNote</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+      --bg: #f7f2e8;
+      --surface: #fffdf8;
+      --surface2: #f3ecde;
+      --border: #deceb1;
+      --text: #2c2317;
+      --text-muted: #6f614f;
+      --accent: #8a5a2b;
+      --accent2: #2a7a62;
+      --accent3: #a24d65;
+      --accent4: #9a6d20;
+      --unit1: #7a5dcb;
+      --unit2: #2a7a62;
+      --unit3: #a24d65;
+      --code-bg: #f5eee0;
+      --tip-bg: #eaf5ee;
+      --tip-border: #2a7a62;
+      --warn-bg: #fff3df;
+      --warn-border: #bd7b1c;
+      --note-bg: #f1ecff;
+      --note-border: #7a5dcb;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(138, 90, 43, 0.08), transparent 32%),
+        radial-gradient(circle at 100% 18%, rgba(42, 122, 98, 0.09), transparent 36%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 16px;
+    }
+
+    /* ─── Sidebar Navigation ─── */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 320px;
+      height: 100vh;
+      background: linear-gradient(180deg, rgba(255, 253, 248, 0.97), rgba(248, 241, 227, 0.97));
+      backdrop-filter: blur(12px);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      z-index: 100;
+      padding: 24px 0 28px;
+      box-shadow: 10px 0 26px rgba(77, 57, 31, 0.14);
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .sidebar h2 {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 24px;
+      margin-top: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1.8px;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 9px 20px 9px 26px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      border-left: 3px solid transparent;
+      border-radius: 0 12px 12px 0;
+      margin-right: 8px;
+    }
+
+    .sidebar a:hover {
+      color: var(--text);
+      background: rgba(138, 90, 43, 0.1);
+      border-left-color: var(--accent2);
+    }
+
+    .sidebar .brand {
+      padding: 14px 24px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar .brand h1 {
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #7b4d23, #b17b3b 45%, #2a7a62);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .sidebar .brand p {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* unit colors in sidebar */
+    .sidebar .u1 {
+      color: var(--unit1);
+    }
+
+    .sidebar .u2 {
+      color: var(--unit2);
+    }
+
+    .sidebar .u3 {
+      color: var(--unit3);
+    }
+
+    .sidebar .uf {
+      color: var(--accent4);
+    }
+
+    /* ─── Main Content ─── */
+    .main {
+      margin-left: 320px;
+      padding: 44px 56px 110px;
+      max-width: 1240px;
+      width: auto;
+    }
+
+    /* ─── Hero ─── */
+    .hero {
+      text-align: center;
+      padding: 56px 42px;
+      border-bottom: none;
+      margin-bottom: 40px;
+      position: relative;
+      background: linear-gradient(135deg, rgba(186, 144, 89, 0.2), rgba(255, 244, 226, 0.85));
+      border: 1px solid rgba(167, 129, 78, 0.4);
+      border-radius: 22px;
+      box-shadow: 0 14px 30px rgba(119, 88, 49, 0.14);
+    }
+
+    .hero h1 {
+      font-size: 42px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6f451f, #9a6d20 45%, #2a7a62);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+
+    .hero p {
+      color: var(--text-muted);
+      font-size: 17px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* ─── Unit Headers ─── */
+    .unit-header {
+      margin: 56px 0 22px;
+      padding: 24px 28px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 24px rgba(123, 94, 58, 0.12);
+      margin-left: 0;
+      position: relative;
+      width: 100%;
+    }
+
+    .unit-header.u1 {
+      background: linear-gradient(120deg, rgba(122, 93, 203, 0.16), rgba(255, 253, 248, 0.9));
+      border-color: rgba(122, 93, 203, 0.36);
+    }
+
+    .unit-header.u2 {
+      background: linear-gradient(120deg, rgba(42, 122, 98, 0.16), rgba(255, 253, 248, 0.9));
+      border-color: rgba(42, 122, 98, 0.36);
+    }
+
+    .unit-header.u3 {
+      background: linear-gradient(120deg, rgba(162, 77, 101, 0.16), rgba(255, 253, 248, 0.9));
+      border-color: rgba(162, 77, 101, 0.36);
+    }
+
+    .unit-header.uf {
+      background: linear-gradient(120deg, rgba(154, 109, 32, 0.16), rgba(255, 253, 248, 0.9));
+      border-color: rgba(154, 109, 32, 0.36);
+    }
+
+    .unit-header h2 {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .unit-header.u1 h2 {
+      color: var(--unit1);
+    }
+
+    .unit-header.u2 h2 {
+      color: var(--unit2);
+    }
+
+    .unit-header.u3 h2 {
+      color: var(--unit3);
+    }
+
+    .unit-header.uf h2 {
+      color: var(--accent4);
+    }
+
+    .unit-header p {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    /* ─── Lecture Sections ─── */
+    .lecture {
+      margin: 28px 0;
+      padding: 30px 32px;
+      background: linear-gradient(180deg, rgba(255, 253, 248, 0.98), rgba(250, 244, 233, 0.98));
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 28px rgba(119, 88, 49, 0.12);
+      position: relative;
+      width: 100%;
+    }
+
+    .lecture h3 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(138, 90, 43, 0.24);
+      color: #3a2e1e;
+    }
+
+    .lecture h4 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--accent2);
+      margin: 26px 0 12px;
+    }
+
+    .lecture h5 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent4);
+      margin: 18px 0 8px;
+    }
+
+    /* ─── Text Elements ─── */
+    p {
+      margin: 10px 0;
+    }
+
+    ul,
+    ol {
+      margin: 10px 0 10px 24px;
+    }
+
+    li {
+      margin: 4px 0;
+    }
+
+    strong {
+      color: var(--accent2);
+      font-weight: 600;
+    }
+
+    em {
+      color: var(--accent4);
+      font-style: normal;
+      font-weight: 500;
+    }
+
+    /* ─── Callout Boxes ─── */
+    .note,
+    .tip,
+    .warn,
+    .formula-box {
+      padding: 18px 22px;
+      border-radius: 12px;
+      margin: 18px 0;
+      border-left: 4px solid;
+      font-size: 15px;
+      box-shadow: inset 0 0 0 1px rgba(138, 90, 43, 0.08);
+    }
+
+    .note {
+      background: var(--note-bg);
+      border-color: var(--note-border);
+    }
+
+    .tip {
+      background: var(--tip-bg);
+      border-color: var(--tip-border);
+    }
+
+    .warn {
+      background: var(--warn-bg);
+      border-color: var(--warn-border);
+    }
+
+    .formula-box {
+      background: var(--code-bg);
+      border-color: var(--accent3);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      text-align: center;
+      padding: 20px;
+      letter-spacing: 0.5px;
+      color: #4a2f74;
+    }
+
+    /* ─── Tables ─── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      font-size: 14px;
+    }
+
+    th {
+      background: linear-gradient(180deg, rgba(239, 229, 209, 0.95), rgba(233, 220, 195, 0.95));
+      color: var(--accent);
+      font-weight: 600;
+      text-align: left;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+    }
+
+    td {
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    tr:hover td {
+      background: rgba(138, 90, 43, 0.08);
+    }
+
+    /* ─── Code Blocks ─── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid rgba(154, 109, 32, 0.3);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin: 12px 0;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #4c3d27;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #a24d65;
+    }
+
+    /* ─── Q&A Blocks ─── */
+    .qa {
+      margin: 20px 0;
+      padding: 20px 24px;
+      background: linear-gradient(150deg, rgba(247, 238, 222, 0.97), rgba(242, 231, 211, 0.97));
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .qa .q {
+      font-weight: 600;
+      color: var(--accent3);
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+
+    .qa .a {
+      color: var(--text);
+    }
+
+    /* ─── Separator ─── */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 36px 0;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 900px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 24px 18px 60px;
+        width: 100%;
+      }
+
+      .hero,
+      .unit-header,
+      .lecture {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+  <nav class="sidebar">
+    <div class="brand">
+      <h1>📓 Transformer One Notes</h1>
+      <p>Comprehensive Learning Journal</p>
+    </div>
+
+    <h2 class="uf">Fundamentals</h2>
+    <a href="#lec0">Session 0 — RNN, LSTM & GRU</a>
+
+    <h2 class="u1">Unit 1 — Core Components</h2>
+    <a href="#lec1">Session 1 — Transformer Overview</a>
+    <a href="#lec2">Session 2 — Encoder-Decoder Architectures</a>
+    <a href="#lec3">Session 3 — Self-Attention & Cross-Attention</a>
+    <a href="#lec4">Session 4 — Single-Head & Multi-Head Attention</a>
+    <a href="#lec5">Session 5 — Position Encoding</a>
+    <a href="#lec6">Session 6 — Feedforward Layers</a>
+    <a href="#lec7">Session 7 — Masking Methods</a>
+
+    <h2 class="u2">Unit 2 — Model Training</h2>
+    <a href="#lec8">Session 8 — Principles of Learning</a>
+    <a href="#lec9">Session 9 — Gradient Descent & Adam</a>
+    <a href="#lec10">Session 10 — Objective Functions</a>
+    <a href="#lec11">Session 11 — Optimization Methods</a>
+    <a href="#lec12">Session 12 — Regularization Approaches</a>
+
+    <h2 class="u3">Unit 3 — NLP Use Cases</h2>
+    <a href="#lec13">Session 13 — BERT</a>
+
+    <h2 style="color:#888;">Supplement</h2>
+    <a href="#appA">A — Activation Layers</a>
+    <a href="#appB">B — Backward Propagation</a>
+    <a href="#appC">C — Probability & Statistical Distributions</a>
+    <a href="#appD">D — ANN Basics & Questions</a>
+  </nav>
+
+  <!-- ═══════════════════════ MAIN ═══════════════════════ -->
+  <div class="main">
+
+    <div class="hero">
+      <h1>Transformer — One Notes</h1>
+      <p>A complete study guide that explains Transformer architecture step by step, starting from basic concepts and moving to advanced applications in NLP. The content is arranged in a structured way to make learning and revision simple and effective.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+     FOUNDATION — RNN / LSTM / GRU
+     ═══════════════════════════════════════════════════════════ -->
+    <div class="unit-header uf" id="lec0">
+      <h2>Basic Idea — Sequence Modeling Before Transformers</h2>
+      <p>Understanding earlier architectures that Transformer models were built to improve</p>
+    </div>
+
+    <div class="lecture">
+      <h3>Session 0 — RNN, LSTM & GRU</h3>
+
+      <h4>0.1 Recurrent Neural Networks (RNN)</h4>
+      <p>A <strong>Recurrent Neural Network (RNN)</strong> is a type of neural network designed to work with <strong>sequential data</strong>, where the order of information matters. It processes data step by step while keeping track of previous inputs using an internal memory called a hidden state. Unlike traditional feedforward networks, RNNs have connections that loop back, allowing past information to influence current and future outputs.</p>
+
+      <p><strong>Recurrent Neural Networks (RNNs)</strong> are commonly applied when the <em>sequence and order of data are important</em> and the information changes over time. They are well-suited for tasks such as processing text, understanding speech, analyzing time-series data, and working with sensor readings.</p>
+
+      <h5>Key Components</h5>
+      <ul>
+        <li><strong>Hidden State (h_t):</strong> Stores information from previous steps and updates with each new input
+        </li>
+        <li><strong>Weights:</strong> Shared across time steps, making RNNs efficient for sequence learning</li>
+        <li><strong>Activation Function:</strong> Typically tanh or ReLU to introduce non-linearity</li>
+      </ul>
+
+      <div class="formula-box">
+        h_t = f(∑ X_t · W_y + b_t)
+      </div>
+
+      <h5>Types of RNN by Input-Output Structure</h5>
+      <table>
+        <tr>
+          <th>Type</th>
+          <th>Structure</th>
+          <th>Example</th>
+        </tr>
+        <tr>
+          <td>One-to-One</td>
+          <td>Single input → single output</td>
+          <td>Image classification (baseline, not truly RNN)</td>
+        </tr>
+        <tr>
+          <td>One-to-Many</td>
+          <td>Single input → sequence output</td>
+          <td>Image captioning, music generation</td>
+        </tr>
+        <tr>
+          <td>Many-to-One</td>
+          <td>Sequence input → single output</td>
+          <td>Sentiment analysis, spam detection</td>
+        </tr>
+        <tr>
+          <td>Many-to-Many (same)</td>
+          <td>Sequence → sequence (equal length)</td>
+          <td>POS tagging, NER</td>
+        </tr>
+        <tr>
+          <td>Many-to-Many (diff)</td>
+          <td>Sequence → sequence (different length)</td>
+          <td>Machine translation (Encoder-Decoder)</td>
+        </tr>
+      </table>
+
+      <h5>Mathematics of Vanilla RNN</h5>
+      <div class="formula-box">
+        h_t = tanh(W_xh · x_t + W_hh · h_{t-1} + b_h)<br>
+        y_t = W_hy · h_t + b_y
+      </div>
+
+      <div class="warn">
+        <p><strong>⚠️ Problem:</strong> Vanilla RNNs face the <em>vanishing gradient problem</em>, where gradients become extremely small as they are backpropagated through many time steps, making it difficult to learn long-range dependencies. They can also experience <em>exploding gradients</em>, where gradients grow too large and lead to unstable training.</p>
+      </div>
+
+      <div class="qa">
+        <div class="q">Q: Suppose we have 3 input nodes, 2 hidden nodes, and 1 output node. Find total weights for RNN
+          vs ANN.</div>
+        <div class="a"><strong>RNN:</strong> 12 weights (shared weights across time steps add recurrent
+          connections)<br><strong>ANN:</strong> 8 weights (direct feedforward connections only)</div>
+      </div>
+
+      <hr>
+
+      <h4>0.2 LSTM — Long Short-Term Memory</h4>
+      <p><strong>LSTM (Long Short-Term Memory)</strong> is an improved Version of RNN introduced by Hochreiter and Schmidhuber. It is designed to learn <em>long-term dependencies</em> in sequential data using a special structure called a <strong>memory cell</strong>, which is regulated by three gates. Because of this ability, LSTMs are widely used in applications such as language translation, speech recognition, and time-series forecasting.</p>
+
+      <h5>The Three Gates</h5>
+
+      <p><strong>1. Forget Gate</strong> — Decides what information to discard from the cell state.</p>
+      <div class="formula-box">
+        f_t = σ(W_f · [h_{t-1}, x_t] + b_f)
+      </div>
+      <p>Output ranges [0, 1]: 0 = forget completely, 1 = keep everything.</p>
+
+      <p><strong>2. Input Gate</strong> — Controls what new information is added to the cell state.</p>
+      <div class="formula-box">
+        i_t = σ(W_i · [h_{t-1}, x_t] + b_i)<br>
+        C̃_t = tanh(W_c · [h_{t-1}, x_t] + b_c)<br>
+        C_t = f_t ⊙ C_{t-1} + i_t ⊙ C̃_t
+      </div>
+
+      <p><strong>3. Output Gate</strong> — Determines the hidden state output for this time step.</p>
+      <div class="formula-box">
+        o_t = σ(W_o · [h_{t-1}, x_t] + b_o)<br>
+        h_t = o_t ⊙ tanh(C_t)
+      </div>
+
+      <div class="tip">
+        <p><strong>💡 Key Insight:</strong> The cell state <em>C<sub>t</sub></em> functions as a stable information pathway that allows gradients to propagate across long sequences with minimal degradation. This controlled flow helps mitigate the vanishing gradient issue in deep recurrent structures. The symbol ⊙ represents element-wise multiplication, where operations are performed independently across corresponding components of vectors or matrices.</p>
+      </div>
+      <hr>
+
+      <h4>0.3 GRU — Gated Recurrent Unit</h4>
+      <p><strong>GRU (Gated Recurrent Unit)</strong>, introduced by Cho et al. in 2014, is a streamlined variant of recurrent neural networks that reduces architectural complexity compared to LSTMs. It eliminates the explicit cell state and consolidates control into two gating mechanisms: the <strong>update gate</strong> and the <strong>reset gate</strong>, which together regulate information retention and flow across time steps.</p>
+
+      <h5>Gate Equations</h5>
+      <div class="formula-box">
+        Update gate: z_t = σ(W_z · [h_{t-1}, x_t])<br>
+        Reset gate: r_t = σ(W_r · [h_{t-1}, x_t])<br>
+        Candidate: h̃_t = tanh(W · [x_t, r_t · h_{t-1}])<br>
+        Hidden state: h_t = (1 − z_t) · h_{t-1} + z_t · h̃_t
+      </div>
+
+      <h5>GRU vs LSTM Comparison</h5>
+      <table>
+        <tr>
+          <th>Feature</th>
+          <th>LSTM</th>
+          <th>GRU</th>
+        </tr>
+        <tr>
+          <td>Gates</td>
+          <td>3 (Input, Forget, Output)</td>
+          <td>2 (Update, Reset)</td>
+        </tr>
+        <tr>
+          <td>Cell State</td>
+          <td>Yes (separate)</td>
+          <td>No (hidden state only)</td>
+        </tr>
+        <tr>
+          <td>Training Speed</td>
+          <td>Slower</td>
+          <td>Faster</td>
+        </tr>
+        <tr>
+          <td>Parameters</td>
+          <td>More</td>
+          <td>Fewer</td>
+        </tr>
+        <tr>
+          <td>Performance</td>
+          <td>Better for long-term memory</td>
+          <td>Similar quality, less complexity</td>
+        </tr>
+      </table>
+
+      <div class="note">
+        <p><strong>📝 Summary:</strong> Recurrent neural networks are capable of handling sequential inputs but struggle to retain information over long intervals. LSTMs address this limitation through a gated memory mechanism that improves long-range dependency learning. GRUs provide a more compact alternative with comparable performance and reduced computational complexity. These architectures formed the foundation of sequence modeling until the introduction of Transformer models in 2017, which shifted the paradigm in modern deep learning.</p>
+      </div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════════════════════════
+     UNIT 1 — INTRODUCTION TO TRANSFORMERS & BUILDING BLOCKS
+     ═══════════════════════════════════════════════════════════ -->
+    <div class="unit-header u1">
+      <h2>UNIT 1 — Transformer Introduction & Core Components</h2>
+      <p>Transformer architecture overview, self-attention, positional encoding, multi-head attention, feed-forward
+        networks, and masking</p>
+    </div>
+
+    <!-- ──── Lecture 1 ──── -->
+    <div class="lecture" id="lec1">
+      <h3>Session 1 — Introduction to Transformer Learning</h3>
+
+      <h4>Evolution in Deep Learning</h4>
+      <p>The journey of deep learning follows a clear evolution:</p>
+      <ul>
+        <li><strong>ANN</strong> — Primarily used for structured/tabular data tasks</li>
+        <li><strong>CNN</strong> — Designed for visual data such as images and spatial feature extraction</li>
+        <li><strong>RNN → LSTM → GRU</strong> — Architectures specialized for sequential and time-dependent data, widely used before 2017</li>
+        <li><strong>Transformers (2017)</strong> — A major breakthrough in deep learning introduced by Ashish Vaswani and team at Google through the paper <em>"Attention Is All You Need"</em>, redefining sequence modeling using attention mechanisms</li>
+      </ul>
+
+      <div class="tip">
+        <p><strong>💡 Why Transformers?</strong> Traditional RNN-based models process input sequentially, meaning each token is handled one after another. This inherently limits parallel computation and makes it difficult to capture long-distance relationships effectively. In contrast, Transformers leverage <em>self-attention mechanisms</em> to evaluate all tokens in a sequence simultaneously, enabling efficient parallel processing and direct modeling of relationships between distant elements, regardless of their position in the sequence.</p>
+      </div>
+
+      <h4>Core Concept</h4>
+<p>Transformers are built around the idea of <strong>sequence-to-sequence modeling</strong> using <strong>self-attention</strong> as the primary mechanism, removing the need for recurrence entirely. This framework underpins modern architectures such as GPT and BERT, and is widely applied in tasks like machine translation and question answering systems.</p>
+
+<h4>High-Level Architecture</h4>
+<p>Most state-of-the-art sequence modeling systems are structured in an <strong>encoder-decoder</strong> format:</p>
+<ul>
+  <li><strong>Encoder:</strong> Converts an input sequence (x₁, …, xₙ) into a set of contextual representations z = (z₁, …, zₙ)</li>
+  <li><strong>Decoder:</strong> Uses the encoded representation z to produce an output sequence (y₁, …, yₘ) step by step in an auto-regressive manner, where each prediction depends on previously generated tokens</li>
+</ul>
+
+<p>The Transformer architecture is composed of stacked layers of <strong>self-attention modules</strong> and <strong>position-wise feed-forward networks</strong> in both encoder and decoder blocks, completely eliminating recurrence and convolution operations.</p>
+
+<div class="note">
+  <strong>📝 Key Insight:</strong> Unlike RNN-based models that require sequential processing and limit parallel computation, Transformers enable full parallelization during training. Self-attention allows the model to directly capture relationships between all tokens in a sequence, regardless of their distance, which is a key advancement over earlier architectures.
+</div>
+    <!-- ──── Lecture 2 ──── -->
+<div class="lecture" id="lec2">
+  <h3>Session 2 — Encoder–Decoder Architecture</h3>
+
+  <h4>Understanding the Encoder–Decoder Framework</h4>
+  <p>The encoder–decoder architecture is primarily used for problems where the input and output sequences differ in length, such as machine translation, text summarization, image captioning, and speech-to-text conversion.</p>
+
+  <h5>Encoder Module</h5>
+  <p>The encoder transforms the input sequence into a structured internal representation through two key components:</p>
+  <ul>
+    <li><strong>Self-Attention Mechanism:</strong> Enables each token to dynamically attend to other tokens in the input, capturing contextual relationships across the sequence.</li>
+    <li><strong>Feed-Forward Network:</strong> Applies non-linear transformations to refine representations and extract higher-level patterns.</li>
+  </ul>
+
+  <h5>Decoder Module</h5>
+  <p>The decoder generates the output sequence using the encoded representation and includes three main components:</p>
+  <ul>
+    <li><strong>Masked Self-Attention:</strong> Processes previously generated tokens while preventing access to future positions during training.</li>
+    <li><strong>Cross-Attention:</strong> Aligns decoder states with relevant encoder outputs to incorporate input context effectively.</li>
+    <li><strong>Feed-Forward Network:</strong> Produces final token-level predictions.</li>
+  </ul>
+
+  <h4>End-to-End Workflow</h4>
+  <ol>
+    <li><strong>Tokenization:</strong> Input text is segmented into tokens (e.g., "I am learning AI" → ["I", "am", "learning", "AI"]).</li>
+    <li><strong>Embedding Layer:</strong> Tokens are mapped into dense vector representations.</li>
+    <li><strong>Encoding Stage:</strong> Self-attention layers build contextualized representations capturing global dependencies.</li>
+    <li><strong>Context Formation:</strong> The encoder output acts as a comprehensive representation of the input sequence.</li>
+    <li><strong>Decoding Stage:</strong> The decoder generates output tokens sequentially, using both self-attention and cross-attention.</li>
+    <li><strong>Final Output:</strong> Each predicted token depends on previously generated tokens and encoded input context.</li>
+  </ol>
+
+  <div class="warn">
+    <strong>⚠️ Key Limitation:</strong> Earlier encoder–decoder models compress the entire input into a single fixed-length representation, which leads to an information bottleneck when handling long sequences. This limitation was a key motivation for introducing attention-based architectures.
+  </div>
+
+  <div class="qa">
+    <div class="q">Q: How is the BLEU score used in evaluating sequence-to-sequence models?</div>
+    <div class="a">BLEU (Bilingual Evaluation Understudy) is an evaluation metric that measures the similarity between generated text and reference outputs using n-gram overlap. It calculates precision over different n-gram levels, applies a brevity penalty for overly short outputs, and produces a score between 0 and 1, where higher values indicate better translation quality.</div>
+  </div>
+</div>
+
+    <!-- ──── Lecture 3 ──── -->
+    <div class="lecture" id="lec3">
+      <h3>Session 3 — Self-Attention & Cross-Attention</h3>
+
+      <h4>3.1 Self-Attention Mechanism</h4>
+      <p>Self-attention is the conversion of <strong>static context vectors into dynamic context vectors</strong>. It
+        provides a dynamic approach to generating word representations by considering the <em>entire context</em> of the
+        input sequence.</p>
+
+      <h5>Why Self-Attention?</h5>
+      <p>Traditional vectorization methods (One-Hot, Bag of Words, TF-IDF) treated each word as an isolated entity. Even
+        word embeddings (Word2Vec, GloVe) are <em>static</em> — the same word always gets the same vector regardless of
+        context.</p>
+
+      <div class="note">
+        <strong>📝 Example:</strong> The word "light" would have the same vector in "light as a feather" and "turn on
+        the light." Self-attention produces <em>different</em> vectors for "light" in each context by weighing the
+        surrounding words differently.
+      </div>
+
+      <h5>Components: Query, Key & Value</h5>
+      <ul>
+        <li><strong>Query (Q):</strong> The current word asking "How relevant is every other word to me?"</li>
+        <li><strong>Key (K):</strong> Reference points for all words that queries are compared against</li>
+        <li><strong>Value (V):</strong> The actual contextual information/meaning of each word</li>
+      </ul>
+
+      <h5>Step-by-Step Computation</h5>
+      <ol>
+        <li><strong>Step 1 — Compute Q, K, V:</strong> Multiply input matrix X by learned weight matrices W_Q, W_K, W_V
+        </li>
+        <li><strong>Step 2 — Calculate Attention Scores:</strong> Dot product of Q with K transposed → similarity matrix
+        </li>
+        <li><strong>Step 3 — Scale:</strong> Divide scores by √d_k to prevent large variances that destabilize training
+        </li>
+        <li><strong>Step 4 — Softmax:</strong> Normalize scores into a probability distribution (all weights sum to 1)
+        </li>
+        <li><strong>Step 5 — Weight Values:</strong> Multiply softmax weights by V → contextually enriched output
+          vectors</li>
+      </ol>
+
+      <div class="formula-box">
+        Attention(Q, K, V) = softmax(Q · K^T / √d_k) · V
+      </div>
+
+      <hr>
+
+      <h4>3.2 Cross-Attention Mechanism</h4>
+<p>Cross-attention serves as an interface between the encoder and decoder components. It enables the decoder to selectively focus on relevant parts of the encoded input representation while generating each output token, effectively aligning input–output relationships.</p>
+
+<h5>Key Distinction from Self-Attention</h5>
+<ul>
+  <li><strong>Query (Q):</strong> Derived from the decoder’s intermediate representations</li>
+  <li><strong>Key (K) and Value (V):</strong> Obtained from the encoder’s output representations</li>
+</ul>
+
+<p>Although the computation follows the same attention formulation as self-attention, the critical difference lies in the origin of Q, K, and V, which enables interaction between encoded input context and generated output sequence.</p>
+
+      <h5>Complexity</h5>
+      <table>
+        <tr>
+          <th>Metric</th>
+          <th>Complexity</th>
+          <th>Explanation</th>
+        </tr>
+        <tr>
+          <td>Time</td>
+          <td>O(n² · d)</td>
+          <td>Each word compared with every other word (n×n matrix), each comparison costs d operations</td>
+        </tr>
+        <tr>
+          <td>Space</td>
+          <td>O(n²)</td>
+          <td>Must store the full n×n attention matrix</td>
+        </tr>
+      </table>
+
+      <h5>Cross-Attention vs Self-Attention</h5>
+      <table>
+        <tr>
+          <th>Aspect</th>
+          <th>Cross-Attention</th>
+          <th>Self-Attention</th>
+        </tr>
+        <tr>
+          <td>Definition</td>
+          <td>Decoder uses information from encoder</td>
+          <td>Each word focuses on other words in the same sequence</td>
+        </tr>
+        <tr>
+          <td>Data Flow</td>
+          <td>Between two different parts (encoder ↔ decoder)</td>
+          <td>Within the same sequence (internal)</td>
+        </tr>
+        <tr>
+          <td>Focus</td>
+          <td>Picking useful info from another part of the model</td>
+          <td>Understanding how words in the same sentence relate</td>
+        </tr>
+        <tr>
+          <td>Example</td>
+          <td>Translation: decoder selects right words from encoder</td>
+          <td>Text analysis: understanding word connections in a sentence</td>
+        </tr>
+      </table>
+
+      <h5>Applications of Cross-Attention</h5>
+      <ul>
+        <li><strong>Machine Translation:</strong> Aligns source words with target words</li>
+        <li><strong>Speech Recognition:</strong> Matches audio sounds with text</li>
+        <li><strong>Question Answering:</strong> Focuses on relevant text for the question</li>
+        <li><strong>Text Summarization:</strong> Identifies the most important parts of input</li>
+      </ul>
+    </div>
+
+    <!-- ──── Lecture 4 ──── -->
+<div class="lecture" id="lec4">
+  <h3>Session 4 — Single-Head vs Multi-Head Attention</h3>
+
+  <h4>Single-Head Attention</h4>
+  <p>Single-head attention applies one set of Query, Key, and Value projections to compute attention over the input sequence. It produces a weighted aggregation of token representations based on similarity scores, which are normalized using softmax to determine relative importance.</p>
+
+  <p>In some hybrid architectures such as SHA-RNN, single-head attention is integrated with recurrent units like LSTMs and can operate effectively with high-dimensional representations (e.g., 1024-dimensional embeddings), offering a simpler yet competitive alternative in certain settings.</p>
+
+  <div class="note">
+    <strong>📝 Scalability Issue:</strong> Attention mechanisms require computing dense score matrices whose size grows quadratically with sequence length. For long inputs (e.g., 4096 tokens), this results in extremely large 4096×4096 attention maps, motivating research into more efficient variants.
+  </div>
+
+  <hr>
+
+  <h4>Multi-Head Attention</h4>
+  <p>Multi-head attention enhances representational power by projecting the input into multiple subspaces and performing attention independently across each one. This allows the model to capture diverse relationships in parallel.</p>
+
+  <h5>Operational Steps</h5>
+  <ol>
+    <li><strong>Projection Phase:</strong> Input X is linearly transformed into multiple sets of Q, K, and V matrices using separate learned weights</li>
+    <li><strong>Parallel Attention:</strong> Each head computes scaled dot-product attention independently</li>
+    <li><strong>Feature Fusion:</strong> Outputs from all heads are concatenated into a unified representation</li>
+    <li><strong>Output Mapping:</strong> A final linear transformation projects the concatenated result into the model dimension</li>
+  </ol>
+
+  <div class="formula-box">
+    MultiHead(Q, K, V) = Concat(head₁, head₂, ..., head_h) · W<sub>O</sub><br><br>
+    head<sub>i</sub> = Attention(Q·W<sub>i</sub><sup>Q</sup>, K·W<sub>i</sub><sup>K</sup>, V·W<sub>i</sub><sup>V</sup>)
+  </div>
+
+  <h5>Advantages of Multi-Head Design</h5>
+  <ul>
+    <li><strong>Diverse representation learning:</strong> Each head captures different linguistic or structural patterns</li>
+    <li><strong>Parallel computation:</strong> Enables simultaneous learning of multiple attention views</li>
+    <li><strong>Improved generalization:</strong> Reduces dependency on a single attention distribution</li>
+  </ul>
+
+  <h5>Placement in Transformer Architecture</h5>
+  <table>
+    <tr>
+      <th>Module</th>
+      <th>Function</th>
+    </tr>
+    <tr>
+      <td>Encoder Self-Attention</td>
+      <td>Models relationships within the input sequence</td>
+    </tr>
+    <tr>
+      <td>Masked Decoder Self-Attention</td>
+      <td>Restricts attention to past tokens for autoregressive generation</td>
+    </tr>
+    <tr>
+      <td>Encoder–Decoder Attention</td>
+      <td>Aligns decoder representations with encoded input context</td>
+    </tr>
+  </table>
+
+  <h5>Real-World Applications</h5>
+  <ul>
+    <li><strong>Natural Language Processing:</strong> Machine translation, summarization, conversational AI systems</li>
+    <li><strong>Computer Vision:</strong> Vision Transformers for image classification and understanding</li>
+    <li><strong>Speech Processing:</strong> Speech recognition systems such as modern end-to-end ASR models</li>
+  </ul>
+</div>
+
+    <!-- ──── Lecture 5 ──── -->
+    <div class="lecture" id="lec5">
+  <h3>Session 5 — Positional Encoding</h3>
+
+  <h4>Need for Positional Encoding</h4>
+  <p>Unlike RNN-based models, Transformers process all tokens in a sequence in parallel. As a result, they do not inherently capture word order. Positional encoding is introduced to inject sequence-order information into token embeddings so that the model can distinguish between different positions in a sentence.</p>
+
+  <h5>Illustrative Insight</h5>
+  <p>Consider the sentence "The cat sat on the mat." Each token is mapped to an embedding vector (E₁ to E₆). Without positional information, reordering tokens such as "cat sat" and "sat cat" would produce identical representations. Positional encoding ensures that each token carries explicit information about its position in the sequence.</p>
+
+  <h4>Sinusoidal Positional Encoding (Original Transformer Design)</h4>
+  <p>The original Transformer architecture encodes positions using sine and cosine functions at varying frequencies:</p>
+
+  <div class="formula-box">
+    PE(pos, 2i) = sin(pos / 10000^(2i/d_model))<br>
+    PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
+  </div>
+
+  <p>Here, <em>pos</em> denotes the token position, <em>i</em> represents the embedding dimension index, and <em>d_model</em> is the total embedding size.</p>
+
+  <div class="tip">
+    <strong>💡 Design Rationale:</strong> Sinusoidal functions provide continuous and smooth positional representations. They allow the model to infer relative distances between tokens using linear operations and generalize to sequence lengths beyond those seen during training.
+  </div>
+
+  <h5>Implementation Example (PyTorch)</h5>
+  <pre>
+import torch
+import numpy as np
+
+def sinusoidal_positional_encoding(seq_len, dim):
+    base = 10000
+    positions = torch.arange(seq_len).unsqueeze(1)
+    div_term = torch.exp(-np.log(base) * (torch.arange(0, dim, 2) / dim))
+
+    pe = torch.zeros(seq_len, dim)
+    pe[:, 0::2] = torch.sin(positions * div_term)
+    pe[:, 1::2] = torch.cos(positions * div_term)
+    return pe
+
+sequence = sequence + sinusoidal_positional_encoding(512, 768)
+</pre>
+
+  <h4>Categorization of Positional Encoding Methods</h4>
+  <table>
+    <tr>
+      <th>Method</th>
+      <th>Common Models</th>
+      <th>Key Property</th>
+    </tr>
+    <tr>
+      <td>Sinusoidal</td>
+      <td>Original Transformer</td>
+      <td>Deterministic encoding with extrapolation capability</td>
+    </tr>
+    <tr>
+      <td>Learned</td>
+      <td>BERT, GPT-2</td>
+      <td>Trainable embeddings, limited generalization beyond training length</td>
+    </tr>
+    <tr>
+      <td>RoPE (Rotary Encoding)</td>
+      <td>LLaMA and modern LLMs</td>
+      <td>Encodes position using rotation in vector space, preserving relative structure</td>
+    </tr>
+    <tr>
+      <td>Relative Position Encoding</td>
+      <td>T5, MPT</td>
+      <td>Focuses on token-to-token distance rather than absolute position</td>
+    </tr>
+    <tr>
+      <td>ALiBi</td>
+      <td>Falcon</td>
+      <td>Adds distance-based bias directly to attention scores</td>
+    </tr>
+  </table>
+
+  <h5>Learned Positional Encoding (GPT-style)</h5>
+  <pre>
+import torch.nn as nn
+
+class LearnedPositionalEncoding(nn.Module):
+    def __init__(self, max_len, dim):
+        super().__init__()
+        self.embedding = nn.Embedding(max_len, dim)
+
+    def forward(self, x):
+        positions = torch.arange(x.size(1), device=x.device)
+        positions = positions.unsqueeze(0).expand(x.size(0), -1)
+        return x + self.embedding(positions)
+</pre>
+
+  <h5>RoPE (Rotary Positional Encoding)</h5>
+  <p>RoPE encodes positional information through rotational transformations in vector space, allowing the model to naturally capture relative positions between tokens.</p>
+  <ul>
+    <li>Relative position can be derived through rotational relationships between vectors</li>
+    <li>Supports long-context generalization beyond training limits</li>
+    <li>Maintains vector magnitude stability, improving training robustness</li>
+  </ul>
+
+  <h4>Significance</h4>
+  <ul>
+    <li><strong>Order Awareness:</strong> Enables models to distinguish token positions within a sequence</li>
+    <li><strong>Improved Generalization:</strong> Supports variable-length input sequences</li>
+    <li><strong>Structural Disambiguation:</strong> Prevents identical treatment of tokens with different positions</li>
+  </ul>
+
+  <h4>Key Limitations</h4>
+  <ul>
+    <li><strong>Fixed-Length Constraints:</strong> Some methods are limited by predefined maximum sequence lengths</li>
+    <li><strong>Limited Flexibility:</strong> Absolute positional methods may not adapt well to dynamic sequence shifts</li>
+  </ul>
+</div>
+
+<!-- ──── Lecture 6 ──── -->
+<div class="lecture" id="lec6">
+  <h3>Session 6 — Feed-Forward Networks in Transformers</h3>
+
+  <h4>Core Architecture</h4>
+  <p>The Feed-Forward Network (FFN) is a fundamental sub-layer within each Transformer encoder and decoder block. It is applied independently to each token representation (position-wise), using identical parameters across all positions.</p>
+
+  <div class="formula-box">
+    FFN(x) = W₂ · σ(W₁ · x + b₁) + b₂
+  </div>
+
+  <h5>Structural Components</h5>
+  <ul>
+    <li><strong>First Linear Projection (W₁):</strong> Expands the input embedding dimension (commonly 4× expansion, e.g., 512 → 2048)</li>
+    <li><strong>Non-Linear Activation (σ):</strong> Introduces non-linearity; commonly ReLU in early models, and GeLU or SwiGLU in modern architectures</li>
+    <li><strong>Second Linear Projection (W₂):</strong> Projects the transformed representation back to the original model dimension</li>
+  </ul>
+
+  <h4>Position-Wise Computation</h4>
+  <p>The FFN operates independently on each token vector, without interaction across positions. While self-attention captures relationships between tokens globally, the FFN refines each token representation individually using shared weights, enabling high parallel efficiency.</p>
+
+  <h4>Comparison: Attention vs Feed-Forward Network</h4>
+  <table>
+    <tr>
+      <th>Aspect</th>
+      <th>Multi-Head Attention</th>
+      <th>Feed-Forward Network</th>
+    </tr>
+    <tr>
+      <td>Function</td>
+      <td>Models contextual relationships between tokens</td>
+      <td>Transforms individual token features</td>
+    </tr>
+    <tr>
+      <td>Interaction Scope</td>
+      <td>Global (cross-token interactions)</td>
+      <td>Local (per-token processing)</td>
+    </tr>
+    <tr>
+      <td>Interpretation</td>
+      <td>Aggregates information from the entire sequence</td>
+      <td>Refines internal representation of each token</td>
+    </tr>
+    <tr>
+      <td>Parameter Contribution</td>
+      <td>Moderate share of total parameters</td>
+      <td>Typically dominates model size (~majority of parameters)</td>
+    </tr>
+  </table>
+
+  <h4>Theoretical Perspective</h4>
+  <ul>
+    <li><strong>Universal Approximation Property:</strong> Two-layer neural networks with non-linear activations can approximate complex continuous functions</li>
+    <li><strong>Expansion Phase (W₁):</strong> Maps inputs into a higher-dimensional space, improving feature separability (conceptually similar to kernel methods)</li>
+    <li><strong>Compression Phase (W₂):</strong> Reduces dimensionality while preserving learned transformations</li>
+    <li><strong>Feature Memory Interpretation:</strong> The FFN can be viewed as a learned transformation bank, where intermediate activations encode feature detectors and outputs represent refined embeddings</li>
+  </ul>
+
+  <h4>Modern Architectural Variants</h4>
+  <ul>
+    <li><strong>GeLU Activation:</strong> Smooth non-linearity that improves gradient flow compared to ReLU</li>
+    <li><strong>GLU / SwiGLU:</strong> Gated architectures that dynamically control information flow</li>
+    <li><strong>Mixture of Experts (MoE):</strong> Replaces a single FFN with multiple expert networks, activating only a subset per token for efficient scaling</li>
+  </ul>
+
+  <div class="note">
+    <strong>📝 Residual Design:</strong> The FFN is integrated with residual connections and layer normalization, ensuring stable gradient propagation and enabling deep stacking of Transformer layers without degradation in training performance.
+  </div>
+</div>
+    <!-- ──── Lecture 7 ──── -->
+<div class="lecture" id="lec7">
+  <h3>Session 7 — Masking in Transformers</h3>
+
+  <h4>Definition of Masking</h4>
+  <p>Masking is a control mechanism in Transformer architectures that determines which tokens are allowed to influence others during attention computation. It ensures that the model does not access irrelevant or future information, preserving correct training and inference behavior, especially in autoregressive generation tasks.</p>
+
+  <h4>Major Types of Masks</h4>
+
+  <h5>1. Padding Mask</h5>
+  <p>Padding masks are used when input sequences within a batch have varying lengths. Shorter sequences are padded to match the longest sequence, and the padding mask ensures these artificial tokens do not contribute to attention computation.</p>
+
+  <ul>
+    <li>Applied in both encoder and decoder layers</li>
+    <li>Attention scores corresponding to padding tokens are set to −∞ before softmax</li>
+    <li>This forces their attention weights to become zero after normalization</li>
+  </ul>
+
+  <h5>2. Causal (Look-Ahead) Mask</h5>
+  <p>Causal masking is used in the decoder self-attention mechanism to enforce autoregressive behavior. It prevents a token from attending to future tokens during training and inference.</p>
+
+  <ul>
+    <li>Implemented using a triangular mask structure with −∞ values above the diagonal</li>
+    <li>Each position i can only attend to positions ≤ i</li>
+    <li>Prevents information leakage from future tokens during training</li>
+  </ul>
+
+  <h5>3. Attention Dropout Mask</h5>
+  <p>Attention dropout randomly disables certain attention connections during training to improve generalization. This encourages the model to distribute attention more robustly rather than relying on specific token dependencies.</p>
+
+  <div class="tip">
+    <strong>💡 Key Insight:</strong> Masking introduces structural constraints into the attention mechanism. Encoder attention remains fully bidirectional, while decoder attention is strictly causal. This design enables the model to understand full context during encoding while generating outputs sequentially in decoding.
+  </div>
+</div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+     UNIT 2 — TRAINING TRANSFORMERS
+     ═══════════════════════════════════════════════════════════ -->
+    <div class="unit-header u2">
+      <h2>Unit 2: Training Transformer Models</h2>
+      <p>Optimization, regularization, handling large datasets, training strategies, and convergence</p>
+    </div>
+
+<!-- ──── Lecture 8 ──── -->
+<div class="lecture" id="lec8">
+  <h3>Session 8 — Fundamental Learning Principles</h3>
+
+  <h4>1. Hebbian Learning Principle</h4>
+  <p>Hebbian learning describes how neural connections strengthen through repeated simultaneous activation. In simple terms, when two neurons activate together frequently, the connection between them becomes stronger, forming the basis of learning and memory formation in neural systems.</p>
+
+  <div class="formula-box">Δw = η · x · y</div>
+  <p>Where <em>x</em> represents input activity, <em>y</em> represents output activity, and <em>η</em> is the learning rate.</p>
+
+  <pre>
+import numpy as np
+
+def hebbian_learning(inputs, outputs, lr=0.1):
+    weights = np.zeros(inputs.shape[1])
+    for x, y in zip(inputs, outputs):
+        weights += lr * x * y
+    return weights
+
+X = np.array([[1, 0], [0, 1], [1, 1]])
+Y = np.array([1, -1, 1])
+weights = hebbian_learning(X, Y)
+print("Learned Weights:", weights)
+</pre>
+
+  <h4>2. Associative Learning Principle</h4>
+  <p>This principle models the relationship between stimuli and responses. It strengthens associations between paired inputs based on repeated co-occurrence, forming the foundation of classical associative learning systems.</p>
+
+  <pre>
+def associative_learning(pairs, lr=0.1):
+    association_map = {}
+    for stimulus, response in pairs:
+        association_map[stimulus] = association_map.get(stimulus, 0) + lr * response
+    return association_map
+
+pairs = [("bell", 1), ("food", 1), ("bell", 1)]
+result = associative_learning(pairs)
+print("Associations:", result)
+</pre>
+
+  <h4>3. Correlation-Based Learning Principle</h4>
+  <p>This learning rule updates weights based on statistical correlation between inputs and outputs. It focuses on how deviations from the mean of both variables influence learning strength.</p>
+
+  <div class="formula-box">Δw = η · (x − x̄)(y − ȳ)</div>
+
+  <pre>
+def correlative_learning(inputs, outputs, lr=0.1):
+    weights = np.zeros(inputs.shape[1])
+    mean_x = np.mean(inputs, axis=0)
+    mean_y = np.mean(outputs)
+
+    for x, y in zip(inputs, outputs):
+        weights += lr * (x - mean_x) * (y - mean_y)
+    return weights
+</pre>
+
+  <h4>Vanishing Gradient Challenge</h4>
+  <p>During backpropagation, gradients are repeatedly multiplied as they flow through layers. When activation functions compress values into small ranges (such as sigmoid or tanh), gradients shrink rapidly, leading to exponential decay. As a result, early layers receive extremely weak updates, preventing effective learning in deep networks.</p>
+
+  <p>This issue often leads to training instability, slow convergence, and poor performance in deep architectures compared to shallower models.</p>
+</div>
+    <!-- ──── Lecture 9 ──── -->
+    <div class="lecture" id="lec9">
+      <h3>Session 9 — Optimization: Gradient Descent & Adam Optimizer</h3>
+
+      <h4>Understanding Gradient Descent</h4>
+<p>Gradient Descent is a fundamental optimization technique used to minimize a loss function by iteratively updating model parameters in the direction of the negative gradient. Intuitively, it can be viewed as navigating downhill on a loss landscape to reach a point of minimum error.</p>
+
+<div class="formula-box">
+  θ<sub>t+1</sub> = θ<sub>t</sub> − η · ∇L(θ<sub>t</sub>)
+</div>
+<p>Here, η denotes the learning rate, and ∇L(θ) represents the gradient of the loss function with respect to parameters θ.</p>
+
+<h5>Variants of Gradient Descent</h5>
+<table>
+  <tr>
+    <th>Type</th>
+    <th>Data Utilization</th>
+    <th>Behavior</th>
+    <th>Use Case</th>
+  </tr>
+  <tr>
+    <td>Batch Gradient Descent</td>
+    <td>Full dataset</td>
+    <td>Stable and deterministic updates</td>
+    <td>Small-scale datasets requiring precise convergence</td>
+  </tr>
+  <tr>
+    <td>Stochastic Gradient Descent (SGD)</td>
+    <td>Single sample per update</td>
+    <td>Noisy but fast convergence behavior</td>
+    <td>Online learning and large-scale optimization</td>
+  </tr>
+  <tr>
+    <td>Mini-Batch Gradient Descent</td>
+    <td>Subset of data (e.g., 32–512 samples)</td>
+    <td>Balanced trade-off between stability and efficiency</td>
+    <td>Standard choice in deep learning frameworks</td>
+  </tr>
+</table>
+
+<h5>Challenges in Vanilla Gradient Descent</h5>
+<ul>
+  <li>Uniform learning rate across all parameters leads to inefficient updates in complex loss landscapes</li>
+  <li>Highly sensitive to learning rate selection, requiring careful tuning</li>
+  <li>Susceptible to saddle points, which are more prevalent than local minima in high-dimensional spaces</li>
+</ul>
+
+<h5>Basic Implementation Example</h5>
+<pre>
+import numpy as np
+
+def gradient_descent(start, lr=0.1, iterations=50, tolerance=1e-6):
+    x = start
+    for i in range(iterations):
+        gradient = 2 * x  # derivative of x²
+        updated_x = x - lr * gradient
+
+        if abs(updated_x - x) < tolerance:
+            break
+
+        x = updated_x
+
+    return x
+
+result = gradient_descent(5.0)
+print("Optimized value:", result)
+</pre>
+
+<hr>
+
+<h4>Adam Optimizer (Adaptive Moment Estimation)</h4>
+<p>Adam is an advanced optimization algorithm that integrates momentum-based updates and adaptive learning rates. It combines first-order (mean) and second-order (variance) moment estimates to improve convergence stability and speed.</p>
+
+<h5>Core Computation Steps</h5>
+<div class="formula-box">
+  m<sub>t</sub> = β₁ m<sub>t−1</sub> + (1 − β₁) g<sub>t</sub><br>
+  v<sub>t</sub> = β₂ v<sub>t−1</sub> + (1 − β₂) g<sub>t</sub>²<br>
+  m̂<sub>t</sub> = m<sub>t</sub> / (1 − β₁ᵗ), v̂<sub>t</sub> = v<sub>t</sub> / (1 − β₂ᵗ)<br>
+  θ<sub>t+1</sub> = θ<sub>t</sub> − η · m̂<sub>t</sub> / (√v̂<sub>t</sub> + ε)
+</div>
+
+<p>Typical hyperparameter values: β₁ = 0.9, β₂ = 0.999, ε ≈ 10⁻⁸</p>
+
+<div class="tip">
+  <strong>💡 Key Advantage:</strong> Adam dynamically adjusts learning rates for each parameter by combining momentum and variance tracking, resulting in faster convergence, reduced oscillations, and improved performance across diverse deep learning tasks.
+</div>
+
+<h5>Comparison of Advanced Optimizers</h5>
+<table>
+  <tr>
+    <th>Optimizer</th>
+    <th>Core Idea</th>
+    <th>Primary Use Case</th>
+  </tr>
+  <tr>
+    <td>AdamW</td>
+    <td>Decouples weight decay from gradient updates</td>
+    <td>Modern deep learning and large language models</td>
+  </tr>
+  <tr>
+    <td>Adagrad</td>
+    <td>Adaptive learning rate based on accumulated squared gradients</td>
+    <td>Sparse feature spaces and embeddings</td>
+  </tr>
+  <tr>
+    <td>RMSprop</td>
+    <td>Exponentially weighted moving average of squared gradients</td>
+    <td>Non-stationary problems and recurrent networks</td>
+  </tr>
+  <tr>
+    <td>L-BFGS</td>
+    <td>Approximate second-order optimization using limited memory</td>
+    <td>Small-scale, high-precision optimization tasks</td>
+  </tr>
+</table>
+</div>
+    <!-- ──── Lecture 10 ──── -->
+<div class="lecture" id="lec10">
+  <h3>Session 10 — Loss Functions</h3>
+
+  <h4>Definition of Loss Function</h4>
+  <p>A loss function quantifies the discrepancy between predicted outputs and actual target values. It provides a numerical measure of model error, guiding the optimization process during training by indicating how far predictions deviate from ground truth.</p>
+
+  <h4>Loss Functions for Regression</h4>
+
+  <h5>1. Mean Squared Error (MSE)</h5>
+  <div class="formula-box">MSE = (1/n) · Σ(yᵢ − ŷᵢ)²</div>
+  <p><strong>Application:</strong> Standard regression problems. <br><strong>Limitation:</strong> Highly sensitive to outliers due to squared error amplification.</p>
+
+  <h5>2. Mean Absolute Error (MAE)</h5>
+  <div class="formula-box">MAE = (1/n) · Σ|yᵢ − ŷᵢ|</div>
+  <p><strong>Application:</strong> Robust regression scenarios. <br><strong>Limitation:</strong> Gradient is not smooth at zero, which can slow optimization.</p>
+
+  <h5>3. Huber Loss</h5>
+  <p>Huber loss is a hybrid formulation that behaves like MSE for small errors and like MAE for large errors, controlled by a threshold parameter δ.</p>
+
+  <div class="formula-box">
+    L = ½(y − ŷ)² &nbsp; if |y − ŷ| ≤ δ<br>
+    L = δ|y − ŷ| − ½δ² &nbsp; otherwise
+  </div>
+
+  <h4>Loss Functions for Classification</h4>
+
+  <h5>4. Binary Cross-Entropy (Log Loss)</h5>
+  <div class="formula-box">L = −[y·log(p) + (1 − y)·log(1 − p)]</div>
+  <p><strong>Application:</strong> Binary classification tasks with sigmoid activation. <br><strong>Note:</strong> Most widely used loss for two-class problems.</p>
+
+  <h5>5. Categorical Cross-Entropy</h5>
+  <div class="formula-box">L = −Σᵢ yᵢ · log(pᵢ)</div>
+  <p><strong>Application:</strong> Multi-class classification with softmax outputs, where only one class is correct per sample.</p>
+
+  <h5>6. Hinge Loss</h5>
+  <div class="formula-box">L = max(0, 1 − y·ŷ)</div>
+  <p><strong>Application:</strong> Margin-based classification methods such as Support Vector Machines.</p>
+
+  <div class="note">
+    <strong>📝 Selection Guide:</strong> Use MSE for general regression tasks, Huber loss for robustness against outliers, Binary Cross-Entropy for binary classification, and Categorical Cross-Entropy for multi-class problems.
+  </div>
+</div>
+   <!-- ──── Lecture 11 ──── -->
+<div class="lecture" id="lec11">
+  <h3>Session 11 — Optimization Techniques</h3>
+
+  <h4>Classification of Optimization Methods</h4>
+
+  <h5>First-Order Methods (Gradient-Based)</h5>
+  <ul>
+    <li><strong>Gradient Descent Variants:</strong> Includes SGD, Mini-Batch GD, and Momentum-based updates</li>
+    <li><strong>Adaptive Optimizers:</strong> Adam, AdamW, RMSprop, Adagrad — adjust learning rates dynamically per parameter</li>
+  </ul>
+
+  <h5>Second-Order Methods (Gradient + Curvature Information)</h5>
+  <ul>
+    <li><strong>Newton’s Method:</strong> θ_new = θ_old − H⁻¹ · ∇f(θ). Provides fast convergence but is computationally expensive due to Hessian inversion (O(n³)), making it impractical for large-scale neural networks</li>
+    <li><strong>BFGS:</strong> Approximates the Hessian matrix using gradient information</li>
+    <li><strong>L-BFGS:</strong> Memory-efficient variant that retains only limited historical gradient information</li>
+  </ul>
+
+  <h5>Stochastic-Based Optimization</h5>
+  <ul>
+    <li><strong>Simulated Annealing:</strong> Introduces controlled randomness to escape local optima, gradually reducing exploration over time</li>
+    <li><strong>Random Search:</strong> Simple but effective strategy for exploring high-dimensional hyperparameter spaces</li>
+  </ul>
+
+  <h5>Evolutionary Optimization Methods</h5>
+  <ul>
+    <li><strong>Genetic Algorithms:</strong> Optimize solutions through selection, crossover, and mutation across a population of candidates</li>
+    <li><strong>Differential Evolution:</strong> Generates new candidates using vector differences: a + F·(b − c)</li>
+  </ul>
+
+  <h5>Swarm Intelligence Methods</h5>
+  <ul>
+    <li><strong>Particle Swarm Optimization (PSO):</strong> Agents update positions based on personal best and global best solutions</li>
+    <li><strong>Ant Colony Optimization (ACO):</strong> Uses pheromone-inspired reinforcement to discover optimal paths</li>
+  </ul>
+
+  <h4>Learning Rate Scheduling Strategies</h4>
+  <ul>
+    <li><strong>Cyclical Learning Rates (CLR):</strong> Learning rate oscillates between bounds to improve exploration and escape flat regions</li>
+    <li><strong>One-Cycle Policy:</strong> Gradual increase followed by decrease in learning rate combined with inverse momentum scheduling, enabling faster convergence and improved generalization</li>
+    <li><strong>Warm-up Strategy:</strong> Gradually increases learning rate at the beginning of training, commonly used in Transformer-based models for stable optimization</li>
+  </ul>
+
+  <h4>Challenges in High-Dimensional Optimization</h4>
+  <div class="warn">
+    <strong>⚠️ Saddle Point Dominance:</strong> In high-dimensional optimization landscapes, saddle points are significantly more prevalent than local minima. These points have zero gradients but mixed curvature, making optimization difficult. Most local minima lie close to the global minimum in deep learning loss surfaces.
+  </div>
+
+  <h4>Hyperparameter Optimization Strategies</h4>
+  <ul>
+    <li><strong>Grid Search:</strong> Exhaustive evaluation of all parameter combinations, computationally expensive but systematic</li>
+    <li><strong>Random Search:</strong> More efficient exploration of large search spaces with competitive performance</li>
+    <li><strong>Bayesian Optimization:</strong> Uses probabilistic surrogate models (e.g., Gaussian Processes) to guide sampling efficiently in expensive search spaces</li>
+  </ul>
+</div>
+
+    <!-- ──── Lecture 12 ──── -->
+<div class="lecture" id="lec12">
+  <h3>Session 12 — Regularization in Transformer Models</h3>
+
+  <p>Transformer architectures possess high representational capacity, enabling them to learn complex patterns effectively. However, this also increases the risk of <strong>overfitting</strong>, particularly during fine-tuning on limited datasets.</p>
+
+  <h4>1. Dropout Regularization</h4>
+  <p>Dropout reduces overfitting by randomly deactivating a subset of neuron activations during training, preventing excessive reliance on specific features.</p>
+
+  <p>In Transformer architectures, dropout is commonly applied at multiple stages:</p>
+  <ul>
+    <li>After token embedding layers</li>
+    <li>After outputs of attention and feed-forward sublayers</li>
+    <li>Within attention score computations prior to softmax normalization</li>
+  </ul>
+
+  <p><strong>Typical configuration:</strong> dropout rates generally range from 0.1 to 0.3, while large-scale models often use lower values (0.05–0.1) to maintain sufficient learning capacity.</p>
+
+  <h4>2. Weight Decay (L2 Regularization)</h4>
+  <p>Weight decay introduces a penalty proportional to the squared magnitude of model parameters, discouraging excessively large weights and improving generalization stability.</p>
+
+  <h4>3. Label Smoothing</h4>
+  <p>Label smoothing replaces hard one-hot targets with softened probability distributions, reducing model overconfidence and improving calibration.</p>
+
+  <p>For example, instead of a target like [0, 1], smoothed targets may resemble [0.05, 0.95].</p>
+
+  <h4>4. Attention Dropout</h4>
+  <p>This technique applies dropout directly to attention weights before softmax normalization, encouraging more distributed attention patterns across tokens.</p>
+
+  <h4>5. Stochastic Depth</h4>
+  <p>Stochastic depth randomly bypasses entire layers during training, effectively creating dynamic shallow networks within deep architectures. This improves gradient propagation and reduces overfitting in very deep Transformers.</p>
+
+  <div class="note">
+    <strong>📝 Key Insight:</strong> No single regularization technique is universally optimal. In practice, combinations such as dropout, label smoothing, and weight decay form the foundation of robust training, while advanced methods like stochastic depth further enhance performance in deeper models. Effective regularization ensures strong generalization rather than memorization of training data.
+  </div>
+</div>
+    <!-- ═══════════════════════════════════════════════════════════
+     UNIT 3 — APPLICATIONS IN NLP
+     ═══════════════════════════════════════════════════════════ -->
+    <div class="unit-header u3">
+      <h2>UNIT 3 — NLP Applications</h2>
+      <p>Machine Translation, Text Summarization, Text Generation, and Transformer-based models such as BERT and GPT along with their variants</p>
+    </div>
+
+<!-- ──── Lecture 13 ──── -->
+<div class="lecture" id="lec13">
+  <h3>Session 13 — BERT (Bidirectional Encoder Representations from Transformers)</h3>
+
+  <h4>Overview of BERT</h4>
+  <p>BERT is an encoder-only Transformer architecture designed to learn deep language representations by processing text in a fully bidirectional manner. Unlike sequential models, it analyzes the entire sentence context simultaneously, enabling richer contextual understanding of each token.</p>
+
+  <h4>Pre-Training Objectives</h4>
+  <p>BERT is trained on large-scale unlabeled corpora using two core self-supervised objectives:</p>
+
+  <h5>1. Masked Language Modeling (MLM)</h5>
+  <ul>
+    <li>Randomly masks approximately 15% of input tokens</li>
+    <li>Model predicts original tokens using surrounding bidirectional context</li>
+    <li>Final hidden states are projected to vocabulary space via embedding matrix multiplication followed by softmax</li>
+    <li>Loss is computed only on masked positions</li>
+    <li>Improves deep contextual representation learning, though training converges slower than autoregressive approaches</li>
+  </ul>
+
+  <h5>2. Next Sentence Prediction (NSP)</h5>
+  <ul>
+    <li>Determines whether sentence B logically follows sentence A</li>
+    <li>Training data contains both true consecutive pairs and randomly sampled sentence pairs</li>
+    <li>The [CLS] token representation is used for binary classification (IsNext vs NotNext)</li>
+    <li>Encourages learning of inter-sentence semantic relationships</li>
+  </ul>
+
+  <div class="tip">
+    <strong>💡 Key Insight:</strong> MLM enhances token-level contextual understanding, while NSP captures discourse-level relationships between sentences. Together, they enable a holistic understanding of language structure.
+  </div>
+
+  <h4>BERT Model Configurations</h4>
+  <table>
+    <tr>
+      <th>Component</th>
+      <th>BERT-Base</th>
+      <th>BERT-Large</th>
+    </tr>
+    <tr>
+      <td>Transformer Layers</td>
+      <td>12</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <td>Hidden Dimension</td>
+      <td>768</td>
+      <td>1024</td>
+    </tr>
+    <tr>
+      <td>Attention Heads</td>
+      <td>12</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>Total Parameters</td>
+      <td>~110M</td>
+      <td>~340M</td>
+    </tr>
+  </table>
+
+  <h4>Fine-Tuning Applications</h4>
+  <ul>
+    <li><strong>Text Classification:</strong> Uses [CLS] token representation for tasks like sentiment analysis and spam detection</li>
+    <li><strong>Question Answering:</strong> Predicts start and end positions of answer spans within a context</li>
+    <li><strong>Named Entity Recognition (NER):</strong> Assigns token-level labels for entity extraction tasks</li>
+    <li><strong>Machine Translation:</strong> Provides contextual embeddings for improved translation quality</li>
+    <li><strong>Text Summarization:</strong> Supports generation of condensed representations of long-form text</li>
+  </ul>
+
+  <h5>Tokenization Example (WordPiece)</h5>
+  <pre>
+from transformers import BertTokenizer
+
+tokenizer = BertTokenizer.from_pretrained("bert-base-cased")
+text = "ChatGPT is a language model developed by OpenAI"
+
+encoding = tokenizer.encode(text)
+tokens = tokenizer.convert_ids_to_tokens(encoding)
+
+print(tokens)
+# Output:
+# ['[CLS]', 'Cha', '##t', '##GP', '##T', 'is', 'a',
+#  'language', 'model', 'developed', 'by', 'Open',
+#  '##A', '##I', '[SEP]']
+</pre>
+
+  <p>[CLS] is a special classification token used for sentence-level tasks, while [SEP] separates segments. The ## prefix indicates subword tokenization using WordPiece encoding.</p>
+
+  <h4>Comparison: BERT vs GPT</h4>
+  <table>
+    <tr>
+      <th>Aspect</th>
+      <th>BERT</th>
+      <th>GPT</th>
+    </tr>
+    <tr>
+      <td>Architecture</td>
+      <td>Encoder-only, bidirectional attention</td>
+      <td>Decoder-only, unidirectional attention</td>
+    </tr>
+    <tr>
+      <td>Pretraining Objective</td>
+      <td>Masked Language Modeling + NSP</td>
+      <td>Autoregressive next-token prediction</td>
+    </tr>
+    <tr>
+      <td>Primary Strength</td>
+      <td>Deep contextual understanding</td>
+      <td>Coherent text generation</td>
+    </tr>
+    <tr>
+      <td>Typical Use Cases</td>
+      <td>Classification, NER, QA, analysis</td>
+      <td>Text generation, chat, completion tasks</td>
+    </tr>
+    <tr>
+      <td>Adaptation Style</td>
+      <td>Task-specific fine-tuning</td>
+      <td>Few-shot / zero-shot prompting</td>
+    </tr>
+  </table>
+</div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+     APPENDIX A — ACTIVATION FUNCTIONS
+     ═══════════════════════════════════════════════════════════ -->
+    <div class="unit-header" style="background: var(--surface2); border-color: var(--border);" id="appA">
+    <h2 style="color: var(--text);">📎 Appendix A — Activation Functions</h2>
+    <p>Complete reference guide covering commonly used neural network activation functions</p>
+    </div>
+
+    <div class="lecture">
+  <h3>Activation Functions — Quick Reference Guide</h3>
+  <p>Activation functions inject <strong>non-linearity</strong> into neural networks. Without them, multiple stacked layers behave like a single linear transformation, severely limiting model expressiveness.</p>
+
+  <table>
+    <tr>
+      <th>Activation</th>
+      <th>Mathematical Form</th>
+      <th>Output Range</th>
+      <th>Typical Usage</th>
+      <th>Key Limitation</th>
+    </tr>
+
+    <tr>
+      <td>Linear</td>
+      <td>f(x) = x</td>
+      <td>(−∞, ∞)</td>
+      <td>Regression output layer</td>
+      <td>No non-linear transformation</td>
+    </tr>
+
+    <tr>
+      <td>Sigmoid</td>
+      <td>σ(x) = 1 / (1 + e⁻ˣ)</td>
+      <td>(0, 1)</td>
+      <td>Binary classification outputs</td>
+      <td>Gradient saturation; not zero-centered</td>
+    </tr>
+
+    <tr>
+      <td>Tanh</td>
+      <td>(eˣ − e⁻ˣ) / (eˣ + e⁻ˣ)</td>
+      <td>(−1, 1)</td>
+      <td>Recurrent network hidden states</td>
+      <td>Still prone to vanishing gradients</td>
+    </tr>
+
+    <tr>
+      <td>ReLU</td>
+      <td>max(0, x)</td>
+      <td>[0, ∞)</td>
+      <td>Default hidden layer activation</td>
+      <td>Dead neuron problem (inactive units)</td>
+    </tr>
+
+    <tr>
+      <td>Leaky ReLU</td>
+      <td>max(αx, x), α ≈ 0.01</td>
+      <td>(−∞, ∞)</td>
+      <td>Robust hidden layers, GANs</td>
+      <td>Introduces small negative slope hyperparameter</td>
+    </tr>
+
+    <tr>
+      <td>Softmax</td>
+      <td>eˣⁱ / Σⱼ eˣʲ</td>
+      <td>(0, 1), sum = 1</td>
+      <td>Multi-class classification output</td>
+      <td>Computationally sensitive to large logits</td>
+    </tr>
+
+    <tr>
+      <td>GeLU</td>
+      <td>x · Φ(x)</td>
+      <td>Approx. (−0.17, ∞)</td>
+      <td>Transformer architectures</td>
+      <td>Higher computational cost than ReLU</td>
+    </tr>
+  </table>
+
+  <div class="qa">
+    <div class="q">Why is ReLU preferred in hidden layers but avoided in output layers?</div>
+    <div class="a">
+      Hidden layers benefit from ReLU due to computational efficiency, strong gradient propagation for positive inputs, and sparse activation behavior, which improves learning dynamics.<br><br>
+      
+      Output layers, however, must align with the problem structure. ReLU is unsuitable for probabilistic outputs or bounded targets. Classification tasks require probability distributions (sigmoid for binary, softmax for multi-class), while regression tasks typically require unrestricted linear outputs.
+    </div>
+  </div>
+</div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+     APPENDIX B — BACKPROPAGATION
+     ═══════════════════════════════════════════════════════════ -->
+<div class="unit-header" style="background: var(--surface2); border-color: var(--border);" id="appB">
+  <h2 style="color: var(--text);">📎 Appendix B — Backpropagation</h2>
+  <p>Mechanism through which neural networks iteratively learn by correcting prediction errors</p>
+</div>
+
+<div class="lecture">
+  <h3>Backpropagation — End-to-End Learning Process</h3>
+
+  <h4>Step 1: Forward Computation</h4>
+  <p>The input data flows through successive layers (input → hidden → output) to generate a prediction from the model.</p>
+
+  <h4>Step 2: Error Evaluation</h4>
+  <div class="formula-box">
+    Error = Target Output − Model Prediction<br>
+    Loss Function = Quantitative measure of prediction deviation (e.g., MSE for regression, Cross-Entropy for classification)
+  </div>
+
+  <h4>Step 3: Gradient Propagation (Chain Rule Application)</h4>
+  <ol>
+    <li><strong>Output Layer Sensitivity:</strong> Compute error gradient at output using (Prediction − Target) scaled by derivative of activation function</li>
+    <li><strong>Hidden Layer Contribution:</strong> Propagate error backward by aggregating gradients from downstream layers and multiplying by local activation derivatives</li>
+    <li><strong>Parameter Update Rule:</strong> Weights are adjusted using gradient descent: Δw = −η × gradient signal × input activation</li>
+  </ol>
+
+  <h4>Illustrative Example</h4>
+  <p>Consider a feedforward network predicting binary student performance outcome:</p>
+
+  <ul>
+    <li><strong>Inputs:</strong> Study hours = 3 (scaled to 0.3), prior performance = 70 (scaled to 0.7)</li>
+    <li><strong>Model Output:</strong> Predicted probability = 0.542</li>
+    <li><strong>Ground Truth:</strong> Actual label = 1 (pass)</li>
+    <li><strong>Error Computation:</strong> 0.542 − 1.0 = −0.458</li>
+    <li><strong>Activation Sensitivity:</strong> Sigmoid derivative = 0.542 × (1 − 0.542) = 0.248</li>
+    <li><strong>Gradient Signal:</strong> −0.458 × 0.248 = −0.1136</li>
+    <li><strong>Learning Step:</strong> This gradient is propagated backward to update all connected weights proportionally</li>
+  </ul>
+
+  <div class="note">
+    <strong>Key Insight:</strong> Backpropagation enables efficient credit assignment across multiple layers by systematically distributing error signals using the chain rule, allowing deep networks to optimize millions of parameters simultaneously.
+  </div>
+</div>
+
+
+    <!-- ═══════════════════════════════════════════════════════════
+     APPENDIX C — PROBABILITY & DISTRIBUTIONS
+     ═══════════════════════════════════════════════════════════ -->
+<div class="unit-header" style="background: var(--surface2); border-color: var(--border);" id="appC">
+  <h2 style="color: var(--text);">📎 Appendix C — Probability & Distributions</h2>
+  <p>Statistical foundations underlying machine learning and deep learning systems</p>
+</div>
+
+<div class="lecture">
+  <h3>Random Variables and Probability Distributions</h3>
+
+  <h4>Random Variables</h4>
+  <ul>
+    <li><strong>Discrete Random Variables:</strong> Take countable outcomes (e.g., number of heads in coin flips: {0,1,2,...})</li>
+    <li><strong>Continuous Random Variables:</strong> Take values over a continuous range (e.g., height, temperature, time)</li>
+  </ul>
+
+  <h4>Probability Mass Function (PMF) — Discrete Case</h4>
+  <p>P(X = x) = p(x), where probabilities satisfy 0 ≤ p(x) ≤ 1 and the sum over all outcomes equals 1.</p>
+
+  <h4>Probability Density Function (PDF) — Continuous Case</h4>
+  <p>f(x) ≥ 0 with total integral equal to 1. Probabilities are computed over intervals:</p>
+  <p>P(a ≤ X ≤ b) = ∫ₐᵇ f(x) dx, while P(X = exact value) = 0 for continuous variables.</p>
+
+  <h4>Common Distributions in Machine Learning</h4>
+  <table>
+    <tr>
+      <th>Distribution</th>
+      <th>Type</th>
+      <th>ML Applications</th>
+    </tr>
+    <tr>
+      <td>Bernoulli</td>
+      <td>Discrete</td>
+      <td>Binary classification, logistic regression, neuron activation modeling</td>
+    </tr>
+    <tr>
+      <td>Binomial</td>
+      <td>Discrete</td>
+      <td>Aggregated binary outcomes, ensemble voting</td>
+    </tr>
+    <tr>
+      <td>Poisson</td>
+      <td>Discrete</td>
+      <td>Event frequency modeling, anomaly detection</td>
+    </tr>
+    <tr>
+      <td>Multinomial</td>
+      <td>Discrete</td>
+      <td>Multi-class classification with softmax outputs</td>
+    </tr>
+    <tr>
+      <td>Uniform</td>
+      <td>Continuous</td>
+      <td>Random initialization, exploration in reinforcement learning</td>
+    </tr>
+    <tr>
+      <td>Gaussian (Normal)</td>
+      <td>Continuous</td>
+      <td>Noise modeling, weight initialization, normalization layers</td>
+    </tr>
+    <tr>
+      <td>Exponential</td>
+      <td>Continuous</td>
+      <td>Time-to-event modeling, survival analysis</td>
+    </tr>
+  </table>
+
+  <h4>Statistical Moments and Distribution Shape</h4>
+  <table>
+    <tr>
+      <th>Order</th>
+      <th>Statistic</th>
+      <th>Definition</th>
+      <th>ML Relevance</th>
+    </tr>
+    <tr>
+      <td>1st Moment</td>
+      <td>Mean</td>
+      <td>μ = E[X]</td>
+      <td>Central tendency, normalization baseline</td>
+    </tr>
+    <tr>
+      <td>2nd Moment</td>
+      <td>Variance</td>
+      <td>σ² = E[(X − μ)²]</td>
+      <td>Data scaling, uncertainty estimation</td>
+    </tr>
+    <tr>
+      <td>3rd Moment</td>
+      <td>Skewness</td>
+      <td>E[(X − μ)³] / σ³</td>
+      <td>Distribution asymmetry analysis</td>
+    </tr>
+    <tr>
+      <td>4th Moment</td>
+      <td>Kurtosis</td>
+      <td>E[(X − μ)⁴] / σ⁴</td>
+      <td>Outlier sensitivity and tail behavior</td>
+    </tr>
+  </table>
+
+  <p><strong>Skewness interpretation:</strong> Symmetric distributions have zero skewness. Positive skew indicates right-tailed distributions (e.g., income data), while negative skew indicates left-tailed distributions (e.g., easy-score distributions).</p>
+
+  <hr>
+
+  <h4>Markov Processes and Stochastic Systems</h4>
+
+  <p>A stochastic process introduces randomness into system evolution over time. A Markov process is a special case where the future depends only on the present state.</p>
+
+  <div class="formula-box">
+    P(X_{t+1} | X_t, X_{t-1}, ..., X_0) = P(X_{t+1} | X_t)
+  </div>
+
+  <h5>Types of Markov Models</h5>
+  <table>
+    <tr>
+      <th>Model Type</th>
+      <th>State Representation</th>
+      <th>Applications</th>
+    </tr>
+    <tr>
+      <td>Markov Chain</td>
+      <td>Fully observable states</td>
+      <td>Ranking systems (PageRank), queuing systems</td>
+    </tr>
+    <tr>
+      <td>Hidden Markov Model (HMM)</td>
+      <td>Hidden states with observable outputs</td>
+      <td>Speech recognition, sequence labeling in NLP</td>
+    </tr>
+    <tr>
+      <td>Markov Decision Process (MDP)</td>
+      <td>States, actions, and reward structure</td>
+      <td>Reinforcement learning, robotics control</td>
+    </tr>
+  </table>
+</div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+     APPENDIX D — ANN FOUNDATIONS & QUESTIONS
+     ═══════════════════════════════════════════════════════════ -->
+    <div class="unit-header" id="appD">
+      <h2>📎 ANN Basics & Practice Questions</h2>
+      <p>Core theory + exam-oriented Q&A</p>
+    </div>
+
+    <div class="lecture">
+      <h3>ANN Basics — Q&A Bank</h3>
+
+      <div class="qa">
+        <div class="q">Q1: Explain hyperplanes mathematically.</div>
+        <div class="a">
+          A hyperplane is a flat subspace with one dimension less than its ambient space (e.g., a line in 2D, a plane in
+          3D).<br><br>
+          In ℝⁿ: <code>w₁x₁ + w₂x₂ + ... + wₙxₙ + b = 0</code> or in vector form: <strong>w·x + b = 0</strong><br>
+          • w = normal vector perpendicular to the hyperplane<br>
+          • b = bias term (shifts the plane from origin)<br>
+          • Divides space into two half-spaces: w·x + b > 0 and w·x + b < 0<br>
+            • Distance from point x₀: |w·x₀ + b| / ||w||<br>
+            • In ML: hyperplanes are decision boundaries in classifiers like SVM
+        </div>
+      </div>
+
+      <div class="qa">
+        <div class="q">Q2: Difference between normal and partial differentiation?</div>
+        <div class="a">
+          <strong>Normal:</strong> Single variable. dy/dx. Slope of tangent to a curve. Example: y = x³ → dy/dx =
+          3x².<br>
+          <strong>Partial:</strong> Multiple variables. ∂z/∂x. Rate of change w.r.t. one variable while holding others
+          constant. Example: z = x²y + sin(x) → ∂z/∂x = 2xy + cos(x), ∂z/∂y = x².
+        </div>
+      </div>
+
+      <div class="qa">
+        <div class="q">Q3: Difference between ANN and BNN?</div>
+        <div class="a">
+          <strong>ANN:</strong> Software/hardware implementation. Artificial neurons with weights and activation
+          functions. Learns via backpropagation. Predefined architecture.<br>
+          <strong>BNN:</strong> Natural brain network. Biological neurons and synapses. Electrochemical signals. Hebbian
+          plasticity. Massive parallelism, low power, fault tolerant. Not fully understood.
+        </div>
+      </div>
+
+      <div class="qa">
+        <div class="q">Q4: What are the limitations of ANN?</div>
+        <div class="a">
+          <ul>
+            <li>High computational cost — requires GPUs/TPUs</li>
+            <li>Needs massive datasets — poor with small data</li>
+            <li>Black box nature — hard to interpret decisions</li>
+            <li>Overfitting — memorizes training data</li>
+            <li>Vanishing/exploding gradients in deep networks</li>
+            <li>Hyperparameter sensitivity — many settings to tune</li>
+            <li>Catastrophic forgetting — forgets old tasks when learning new ones</li>
+            <li>Adversarial vulnerability — small input changes can fool the network</li>
+            <li>Sequence length limitations (RNNs)</li>
+            <li>No common sense reasoning</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="qa">
+        <div class="q">Q5: What is the significance of bias?</div>
+        <div class="a">
+          Bias is like the intercept in y = mx + c. Without bias, every decision must pass through the origin (0,0).
+          Bias allows the decision boundary to be shifted anywhere.<br><br>
+          <strong>Analogy:</strong> In a spam filter, weights look at email words. Bias is the initial suspicion level
+          before reading any words. A high bias means "assume spam unless proven otherwise."<br><br>
+          <strong>Why important:</strong> Flexibility to fit data better. Prevents zero-output. Enables learning complex
+          patterns.
+        </div>
+      </div>
+
+      <div class="qa">
+        <div class="q">Q6: Differentiate between linear and non-linear activation functions.</div>
+        <div class="a">
+          <strong>Linear:</strong> f(x) = x. No transformation. Stacking linear layers = single linear layer. Used only
+          for regression output.<br>
+          <strong>Non-linear:</strong> Enables deep networks to learn complex mappings. Types: Sigmoid (binary output),
+          Tanh (RNN hidden), ReLU (default hidden layer), Leaky ReLU (fixes dying ReLU), Softmax (multi-class). Without
+          non-linearities, networks cannot approximate arbitrary functions.
+        </div>
+      </div>
+
+      <div class="qa">
+        <div class="q">Q7: Explain classifications of AI through a Venn diagram structure.</div>
+        <div class="a">
+          <strong>Outermost:</strong> AI — machines mimicking human intelligence<br>
+          &nbsp;&nbsp;├── <strong>ML:</strong> Systems learning from data without explicit programming<br>
+          &nbsp;&nbsp;│&nbsp;&nbsp;├── <strong>DL:</strong> Multi-layer neural networks learning representations<br>
+          &nbsp;&nbsp;│&nbsp;&nbsp;└── <strong>RL:</strong> Agents learning by interacting with environments<br>
+          &nbsp;&nbsp;├── Symbolic AI / Expert Systems (rule-based, outside ML)<br>
+          &nbsp;&nbsp;└── Application domains: Computer Vision, NLP, Robotics<br><br>
+          <strong>By capability:</strong> Narrow AI (specific tasks, exists today) → General AI (human-like, not
+          achieved) → Superintelligent AI (beyond human, hypothetical)
+        </div>
+      </div>
+
+      <h4>Practice Code — ANN Apple Classifier</h4>
+      <pre>
+import numpy as np
+
+# Data: {color (0=green, 1=red, 2=yellow), weight in gm}
+X = np.array([[0,120],[0,130],[1,140],[1,150],[2,160],[2,170]])
+y = np.array([0, 0, 0, 1, 1, 1])  # Labels
+
+def step_function(x):
+    return 1 if x >= 0 else 0
+
+weights = np.random.randn(2)
+bias = 0.5
+learning_rate = 0.05
+
+for _ in range(120):
+    for i in range(len(X)):
+        linear_output = np.dot(X[i], weights) + bias
+        y_pred = step_function(linear_output)
+        error = y[i] - y_pred
+        weights += learning_rate * error * X[i]
+        bias += learning_rate * error
+
+print("Final Weights:", weights)
+print("Final Bias:", bias)
+</pre>
+
+      <h4>Practice Code — Simple RNN Sequence Predictor</h4>
+      <pre>
+import numpy as np
+
+seq = [i for i in range(1, 11)]  # 1 to 10
+X, y = [], []
+for i in range(len(seq)-3):
+    X.append(seq[i:i+3])
+    y.append(seq[i+3])
+
+predictions = []
+for x in X:
+    pred = 0.5*x[2] + 0.3*x[1] + 0.2*x[0]  # Recency-weighted
+    predictions.append(round(pred, 1))
+
+print(f"Predictions: {predictions}")  # [1.9, 2.8, 3.7, ...]
+print(f"Actual:      {y}")            # [4, 5, 6, ...]
+</pre>
+    </div>
+
+    <!-- ─── Footer ─── -->
+    <div
+      style="text-align:center; padding: 40px 0; color: var(--text-muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 60px;">
+      <p>Transformer Notes — Complete and Structured Learning Guide</p>
+      <p>By ~ Aditya Kumar Bhardwaj</p>
+      <p style="margin-top: 8px; color: #555;">Covers: RNN/LSTM/GRU → Transformer Architecture → Self-Attention →
+        Multi-Head Attention → Positional Encoding → FFN → Masking → Optimization → Regularization → BERT</p>
+    </div>
+
+  </div><!-- end .main -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const replacements = [
+        [/Lecture/gi, "Session"],
+        [/Unit/gi, "Module"],
+        [/Foundation/gi, "Fundamentals"],
+        [/Building Blocks/gi, "Core Components"],
+        [/Training/gi, "Model Development"],
+        [/Applications/gi, "Use Cases"],
+        [/Introduction/gi, "Overview"],
+        [/Techniques/gi, "Methods"],
+        [/Functions/gi, "Objectives"],
+        [/Regularization/gi, "Generalization Control"],
+        [/Practice Questions/gi, "Applied Questions"],
+        [/Complete/gi, "Comprehensive"],
+        [/Study/gi, "Learning"],
+        [/Notes/gi, "Guide"],
+        [/Quick Reference/gi, "Rapid Reference"],
+        [/Learning Cycle/gi, "Learning Flow"],
+        [/Foundations/gi, "Basics"]
+      ];
+
+      const blocked = new Set(["SCRIPT", "STYLE", "PRE", "CODE"]);
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      let node;
+
+      while ((node = walker.nextNode())) {
+        const parentTag = node.parentElement ? node.parentElement.tagName : "";
+        if (blocked.has(parentTag)) continue;
+        let text = node.nodeValue;
+        if (!text || !text.trim()) continue;
+
+        for (const [pattern, next] of replacements) {
+          text = text.replace(pattern, next);
+        }
+        node.nodeValue = text;
+      }
+    });
+  </script>
+</body>
+
+</html>
