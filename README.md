@@ -2,6 +2,8 @@
 
 A single-page HTML project that presents comprehensive Transformer notes in a clean, sidebar-driven OneNote-style layout.
 
+
+
 ## Project Structure
 
 - `index.html` - Main and only source file containing all study content.
@@ -15,4 +17,3 @@ A single-page HTML project that presents comprehensive Transformer notes in a cl
 ## Notes
 
 - This project is static and does not require any build tools or dependencies.
-- Edit `index.html` directly to update content or styling.
