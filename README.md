@@ -4,7 +4,7 @@ A single-page HTML project that presents comprehensive Transformer notes in a cl
 
 ## Project Structure
 
-- `index.html` - Main and only source file containing styles, sidebar navigation, and all study content.
+- `index.html` - Main and only source file containing all study content.
 
 ## How to Use
 
